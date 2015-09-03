@@ -4,7 +4,7 @@ $computername = $env:computername
 )            
 [array]$hotfixes = Get-WmiObject -ComputerName $computername -Class Win32_QuickFixEngineering | select hotfixid            
 $hotfixIDs = @("3068708","3022345","3075249","3080149")
-foreach($hotfixID in $hotfixes) {
+foreach($HotfixID in $hotfixes) {
 if($HotfixID -contains $hotfixIDs) {
     Write-host "Found the hotfix KB" + $HotfixID
     Write-Host "Uninstalling the hotfix"
