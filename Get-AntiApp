@@ -1,0 +1,128 @@
+<#
+.SYNOPSIS
+
+Test Script
+version 5.1
+Author: Rob Vance (http://www.ngosecurity.com)
+
+	The MIT License
+	-----------------------------------------------------------------------
+	Copyright (c) 2015 NGO Security Solutions
+	Permission is hereby granted, free of charge, to any person obtaining a 
+	copy of this software and associated documentation files (the `"Software`"), 
+	to deal in the Software without restriction, including without limitation 
+	the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+	and/or sell copies of the Software, and to permit persons to whom the 
+	Software is furnished to do so, subject to the following conditions:
+	The above copyright notice and this permission notice shall be included 
+	in all copies or substantial portions of the Software.
+	THE SOFTWARE IS PROVIDED `"AS IS`", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE.
+
+#>
+
+Param
+(
+    [Parameter(Position=0,Mandatory=$false)]
+    [ValidateNotNullorEmpty()]
+    [Alias('cn')][String[]]$ComputerName=$Env:COMPUTERNAME
+)
+function checkWMI ([string]$srv){  
+    $checkwmi = $null  
+    $timeout = new-timespan -seconds 15  
+    $Scope = new-object System.Management.ManagementScope "\\$srv\root\cimv2", $options -ErrorAction Continue
+    try {
+        $Scope.Connect()  
+        $query = new-object System.Management.ObjectQuery "SELECT * FROM Win32_OperatingSystem"  
+        $searcher = new-object System.Management.ManagementObjectSearcher $scope,$query  
+        $SearchOption = $searcher.get_options()  
+        $SearchOption.set_timeout($timeout)  
+        $searcher.set_options($SearchOption)  
+        $checkwmi = $searcher.get()  
+        $lastBoot = $checkwmi | %{$_.lastbootuptime}  
+        if($lastBoot){  
+            return $true  
+        } else {  
+            return $false  
+        }
+    } catch {
+        continue
+    }
+} 
+$Obj = @()
+foreach($Computer in $ComputerName) {
+    if(Test-Connection -BufferSize 32 -Count 1 -ComputerName $Computer -Quiet) {
+        if((checkWMI $Computer) -eq $true) {
+            $OSVersion = (Get-WmiObject win32_operatingsystem -computername $Computer).version
+            $OS = $OSVersion.split(".")
+            if ($OS[0] -eq "5") {
+                Try {
+                    $AntiVirusProduct = Get-WmiObject -Namespace root\SecurityCenter -Class AntiVirusProduct  -ComputerName $Computer -ErrorAction Stop
+                } Catch {
+                    Continue
+                }    
+                $workstation = $AntiVirusProduct.__Server;
+                $Name = $AntiVirusProduct.displayName;
+                $av1 = $AntiVirusProduct.versionNumber;
+                $av2= $AntiVirusProduct.onAccessScanningEnabled;
+                $av3 = $AntiVirusProduct.productUptoDate
+                $outSTR = "$workstation$Name$av1$av2$av3"
+                if($outSTR -notcontains $outARRAY) {
+                    $OutputString = [string]""
+                    $OutputString += ($workstation.ToUpper()).Trim() + "," + $Name + "," + $av1 + "," + $av2 + "," + $av3
+                    $Obj += $OutputString
+                    [array]$outARRAY = $outSTR
+                }
+            } 
+            if ($OS[0] -eq "6") {
+                Try {
+                    $AntiVirusProduct = Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct  -ComputerName $Computer -ErrorAction Stop
+                } Catch { }                
+                switch ($AntiVirusProduct.productState) {
+                    "262144" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}
+                    "262160" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}
+                    "266240" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}
+                    "266256" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}
+                    "393216" {$defstatus = "Up to date" ;$rtstatus = "Disabled"}
+                    "393232" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}
+                    "393488" {$defstatus = "Out of date" ;$rtstatus = "Disabled"}
+                    "397312" {$defstatus = "Up to date" ;$rtstatus = "Enabled"}
+                    "397328" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}
+                    "397584" {$defstatus = "Out of date" ;$rtstatus = "Enabled"}
+                    default {$defstatus = "Unknown" ;$rtstatus = "Unknown"}
+                }            
+                $workstation = $AntiVirusProduct.__Server
+                $Name = $AntiVirusProduct.displayName
+                $av1 = $AntiVirusProduct.pathToSignedProductExe
+                $av2 = $defstatus
+                $av3 = $rtstatus
+                $outSTR = "$workstation$Name$av1$av2$av3" 
+                if($outSTR -notcontains $outARRAY) {
+                    $OutputString = [string]""
+                    $OutputString += ($workstation.ToUpper()).Trim() + "," + $Name + "," + $av1 + "," + $av2 + "," + $av3
+                    $Obj += $OutputString
+                    [array]$outARRAY = $outSTR
+                }
+            } 
+        }
+    } else {  
+        $workstation = $Computer;
+        $Name = "Unknown";
+        $av1 = "Unknown";
+        $av2 = "Unknown";
+        $av3 = "Unknown";
+        $outSTR = "$workstation$Name$av1$av2$av3" 
+        if($outSTR -notcontains $outARRAY) {
+            $OutputString = [string]""
+            $OutputString += ($workstation.ToUpper()).Trim() + "," + $Name + "," + $av1 + "," + $av2 + "," + $av3
+            $Obj += $OutputString
+            [array]$outARRAY = $outSTR
+        }
+    } 
+    $Obj
+}
