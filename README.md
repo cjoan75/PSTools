@@ -6,9 +6,9 @@ copydifftosp - Make a copy of a report that exists in one directory that doesnâ€
 
 create_rpt - Create a report based on the findings of named spreadsheets. (obsolete)
 
-Get-AntiVirus - Identifies the antivirus running on a host
+Get-AntiApp - Identifies the antivirus running on a host
 
-Get-COM15 - Identifies what communication port a device is attached to.  Default is COM15.
+Get-Port - Identifies what communication port a device is attached to.  Default is COM15.
 
 Get-DumpWER - Identify if a Windows Error Report (i.e., dump) exists on the register
 
