@@ -3,3 +3,10 @@ gwmi win32_useraccount | where {$_.caption -match $env:USERNAME} | select fullna
 PS C:\temp> $dom = $env:userdomain
 PS C:\temp> $usr = $env:username
 PS C:\temp> ([adsi]"WinNT://$dom/$usr,user").fullname
+
+$Outlook = New-Object -ComObject Outlook.Application
+$Mail = $Outlook.CreateItem(0)
+$Mail.To = "boss@company.com"
+$Mail.Subject = "Action"
+$Mail.Body ="Pay rise please"
+$Mail.Send()
