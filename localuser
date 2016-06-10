@@ -1,0 +1,5 @@
+gwmi win32_useraccount | where {$_.caption -match $env:USERNAME} | select fullname | ft -HideTableHeaders
+
+PS C:\temp> $dom = $env:userdomain
+PS C:\temp> $usr = $env:username
+PS C:\temp> ([adsi]"WinNT://$dom/$usr,user").fullname
