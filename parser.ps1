@@ -60,7 +60,7 @@ function usage() {
 $helpfile = "
 
 .SYNOPSIS
-    Executes supported Keylight API v.4.4 Calls
+    Executes supported API Calls
 
     Script name: $scriptname
     Version    : 1.0
@@ -152,7 +152,7 @@ function Randomize-List {
 #
 try {
     if([system.diagnostics.eventlog]::SourceExists($scriptname) -ne $true) { 
-        [system.diagnostics.EventLog]::CreateEventSource($scriptname, ìApplicationî) 
+        [system.diagnostics.EventLog]::CreateEventSource($scriptname, ‚ÄúApplication‚Äù) 
     }
 } catch {
     $e = $false
@@ -208,7 +208,7 @@ if($m) {
     $To = "ReportOnesupport@targetco.com"
 }
 if($s) {
-    $To = "thiagarajan.natchiappan@targetco.com"
+    $To = "ReportTwosupport@targetco.com"
 }
 #
 $Cc = "tgt.user1@targetco.com","tgt.user2@targetco.com"
@@ -274,35 +274,35 @@ $selectobj = $selectobj -replace ",$"
 ####> Covert CSV to XML
 #
 function New-Xml {
-param($RootTag='Assessments',$ItemTag=îAssessmentî, $ChildItems, $Attributes=$Null)
+param($RootTag='Assessments',$ItemTag=‚ÄùAssessment‚Äù, $ChildItems, $Attributes=$Null)
     Begin {
-        $xml = ì<$RootTag>`nî
+        $xml = ‚Äú<$RootTag>`n‚Äù
     }
     Process {
-        $xml += î <$ItemTagî
+        $xml += ‚Äù <$ItemTag‚Äù
         if ($Attributes) {
             foreach ($attr in $_ | Get-Member -type *Property $attributes){ 
                 $name = $attr.Name
-                $xml += î $Name=`î$($_.$Name)`îî
+                $xml += ‚Äù $Name=`‚Äù$($_.$Name)`‚Äù‚Äù
             }
         }
-        $xml += ì>`nî
+        $xml += ‚Äú>`n‚Äù
         foreach ($child in $_ | Get-Member -Type *Property $childItems){
             $Name = $child.Name
             if (($Name -match 'CriticalOpenItems') -or ($Name -match 'HighOpenItem')) {
                 if ($_.$Name -lt 1) {
-                    $xml += î <$Name><![CDATA[0]]></$Name>`nî
+                    $xml += ‚Äù <$Name><![CDATA[0]]></$Name>`n‚Äù
                 } else {
-                    $xml += î <$Name><![CDATA[" + $($_.$Name) + "]]></$Name>`nî
+                    $xml += ‚Äù <$Name><![CDATA[" + $($_.$Name) + "]]></$Name>`n‚Äù
                 }
             } else {
-                $xml += î <$Name><![CDATA[" + $($_.$Name) + "]]></$Name>`nî
+                $xml += ‚Äù <$Name><![CDATA[" + $($_.$Name) + "]]></$Name>`n‚Äù
             }
         }
-        $xml += î </$ItemTag>`nî
+        $xml += ‚Äù </$ItemTag>`n‚Äù
     }
     End {
-        $xml += ì</$RootTag>`nî
+        $xml += ‚Äú</$RootTag>`n‚Äù
         $xml
     }
 }
@@ -312,7 +312,7 @@ param($RootTag='Assessments',$ItemTag=îAssessmentî, $ChildItems, $Attributes=$Nu
 function Format-XML ([xml]$xml, $Indent=2) { 
     $StringWriter = New-Object System.IO.StringWriter 
     $XmlWriter = New-Object System.XMl.XmlTextWriter $StringWriter 
-    $xmlWriter.Formatting = ìIndentedî 
+    $xmlWriter.Formatting = ‚ÄúIndented‚Äù 
     $xmlWriter.Indentation = $Indent 
     $xml.WriteContentTo($XmlWriter) 
     $XmlWriter.Flush() 
