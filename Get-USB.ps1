@@ -1,3 +1,5 @@
+# https://github.com/hephaest0s/usbkill
+
 function List-UsbDevices(){
     return gwmi Win32_USBControllerDevice |%{[wmi]($_.Dependent)};
 }
