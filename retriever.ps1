@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Executes supported Keylight API v.4.4 Calls
+    Executes supported API Calls
 
     Script name: $scriptname
     Version    : 1.0-4.4
@@ -87,7 +87,7 @@ switch ($PSCmdlet.ParameterSetName) {
 # For use in the USAGE function
 $global:scriptname = $MyInvocation.MyCommand.Name
 if([system.diagnostics.eventlog]::SourceExists($scriptname) -ne $true) { 
-    [system.diagnostics.EventLog]::CreateEventSource($scriptname, “Application”) 
+    [system.diagnostics.EventLog]::CreateEventSource($scriptname, â€œApplicationâ€) 
 }
 #
 function usage() { 
@@ -101,7 +101,7 @@ $helpfile = "
     Author     : Rob Vance (http://www.ngosecurity.com)
 
 .DESCRIPTION
-    The script executes the various call available in v.4.4 of the Keylight API. (Refer to the guide for 
+    The script executes the various call available in an API. (Refer to the guide for 
     details on how to utilize the API for your specific needs.) 
 
 .SYNTAX
@@ -125,7 +125,7 @@ $helpfile = "
     -h                          This display
 
 .PARAMETER GetFieldList
-    Returns a complete list of all Keylight components available to the user based on account permissions.
+    Returns a complete list of all the components available to the user based on account permissions.
     No input elements are used. The list will be ordered in ascending alphabetical order of the component
     name.
 
@@ -294,7 +294,7 @@ if($o) {
 }
 #
 # Change as required
-$API_HOST = "keylight.targetco.com"
+$API_HOST = "api.targetco.com"
 $API_SCHEME = "https"
 $API_PORT = "4443"
 #
@@ -420,7 +420,7 @@ $XMLQuery = @('GetRecordCount',
 function Format-XML ([xml]$xml, $indent=2) { 
     $StringWriter = New-Object System.IO.StringWriter 
     $XmlWriter = New-Object System.XMl.XmlTextWriter $StringWriter 
-    $xmlWriter.Formatting = “indented” 
+    $xmlWriter.Formatting = â€œindentedâ€ 
     $xmlWriter.Indentation = $Indent 
     $xml.WriteContentTo($XmlWriter) 
     $XmlWriter.Flush() 
