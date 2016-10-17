@@ -200,7 +200,7 @@ if($ftp -or $ftps) {
     }
 }
 #
-# Supplier Inventory
+# Inventory
 $API_CID = "1"
 #
 $From = "keylight@targetco.com"
