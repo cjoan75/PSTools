@@ -13,15 +13,20 @@ function addtoList($chkUSB) {
     $chkUSB.DeviceID, 
     $chkUSB.Service
     $chkUSB.Description
-    createList
+    CreateList
+}
+
+function incident($varID) {
+    if($varID = "776838E102") {
+        Write-Host "Shut it Down!"
+        Stop-Computer
+    }
 }
 
 if((-not (Test-Path test.csv)) -or $n){
     createList   
 }
-
 Unregister-Event -SourceIdentifier deviceChange
-
 Register-WmiEvent -Class win32_DeviceChangeEvent -SourceIdentifier deviceChange
 write-host (get-date -format s) " Beginning script..."
 do{
@@ -41,7 +46,7 @@ do{
         if($chkUSB) {
             switch($chkUSB.SideIndicator) {
                 '=>' { Write-Host "Net New: "; addtoList($chkUSB); break }
-                '<=' { Write-Host "Missing: "; $chkUSB.DeviceID; break }
+                '<=' { Write-Host "Missing: "; incident($chkUSB.DeviceID); break }
             }
         }
 
