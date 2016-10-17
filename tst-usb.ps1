@@ -12,7 +12,7 @@ $whiteList = Get-Content test.csv | ConvertFrom-Csv -Delimiter "`," | Select Dev
 
 $scanUSB = (ListUSB).GetEnumerator() | Select DeviceID, Service, Description
 
-$chkUSB = Compare-Object -ReferenceObject($whiteList) -DifferenceObject($scanUSB) -Property DeviceID -PassThru
+$chkUSB = Compare-Object -ReferenceObject($whiteList) -DifferenceObject($scanUSB) -Property DeviceID -PassThru | Select * -ExcludeProperty SideIndicator
 
 $chkUSB
 
