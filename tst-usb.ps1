@@ -13,7 +13,7 @@ function addtoList($chkUSB) {
     $chkUSB.DeviceID, 
     $chkUSB.Service
     $chkUSB.Description
-
+    createList
 }
 
 if((-not (Test-Path test.csv)) -or $n){
