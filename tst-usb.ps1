@@ -1,6 +1,9 @@
 $n = $false
-
+#
+####> Function Alley
+#
 function ListUSB () {
+# Scan for anything identified as a USB Device
     gwmi Win32_USBControllerDevice | %{ [wmi]($_.Dependent) } | Where-Object { $_.DeviceID -Like "*USB*" } | Select-Object -Property DeviceID, Service, Description | ForEach-Object -Process { $_.DeviceID = $_.DeviceID -replace '\&','' | % { $_.Split('\\',3)[2] }; $_ }
 }
 
@@ -9,17 +12,45 @@ function createList () {
     (ListUSB).GetEnumerator() | Export-Csv test.csv -NoClobber -NoTypeInformation
 }
 
-function addtoList($chkUSB) {
-    $chkUSB.DeviceID, 
-    $chkUSB.Service
-    $chkUSB.Description
-    CreateList
+function yesanswer($msg) {
+    $defaultValue = 'Y'
+    $prompt = Read-Host "$msg [$($defaultValue)]"
+    $prompt = ($defaultValue,$prompt)[[bool]$prompt]
+    return $prompt
 }
 
-function incident($varID) {
-    if($varID = "776838E102") {
-        Write-Host "Shut it Down!"
-        Stop-Computer
+function createKey($keyID) {
+    if(Test-Path key.txt) { Remove-Item key.txt }
+    $keyID | Out-File key.txt
+}
+
+function addtoList($chkUSB) {
+    Write-Host "DeviceID: " $chkUSB.DeviceID
+    $prompt1 = yesanswer "Do you want to add it to the list?"
+    if($prompt1 -eq 'Y') {
+        Write-Host "Adding " $chkUSB.Description " to the whitelist of trusted devices."
+        $chkUSB | Export-Csv -Append test.csv
+        $prompt2 = yesanswer "Should this USB Device be used as the key?"
+        if($prompt2 -eq 'Y') {
+            createKey $chkUSB.DeviceID
+        } else {
+            break
+        }
+    } else {
+        Write-Host $chkUSB.Description " will not be added to whitelist."
+        break
+    }
+}
+
+function incident($ckID, $eID) {
+    [string]$kID = gc key.txt
+    [string]$cID = $ckID.DeviceID
+    if(($kID -match $cID) -and ($eID -eq 3)) {
+        Write-Host "The $cID key is not present, shutting down now!"
+        exit
+        #shutdown /p
+    } else {
+        break 
     }
 }
 
@@ -33,20 +64,21 @@ do{
     $newEvent = Wait-Event -SourceIdentifier deviceChange
     $eventType = $newEvent.SourceEventArgs.NewEvent.EventType
     $eventTypeName = switch($eventType) {
-        1 {"Configuration changed"}
-        2 {"Device arrival"}
-        3 {"Device removal"}
-        4 {"docking"}
+        1 { "Configuration changed"; }
+        2 { "Device arrival"; }
+        3 { "Device removal"; }
+        4 { "docking"; }
     }
-    write-host (get-date -format s) " Event detected = " $eventTypeName
+    $ts = (get-date -format s)
+    Write-Host "$ts Event detected = $eventTypeName"
     if($eventTypeName) {
         $whiteList = Get-Content test.csv | ConvertFrom-Csv -Delimiter "`," | Select DeviceID
         $scanUSB = (ListUSB).GetEnumerator() | Select DeviceID, Service, Description
-        $chkUSB = Compare-Object -ReferenceObject($whiteList) -DifferenceObject($scanUSB) -Property DeviceID -PassThru #| Select * -ExcludeProperty SideIndicator
+        $chkUSB = Compare-Object -ReferenceObject($whiteList) -DifferenceObject($scanUSB) -Property DeviceID -PassThru
         if($chkUSB) {
             switch($chkUSB.SideIndicator) {
-                '=>' { Write-Host "Net New: "; addtoList($chkUSB); break }
-                '<=' { Write-Host "Missing: "; incident($chkUSB.DeviceID); break }
+                 '=>' { Write-Host "Net New: " $chkUSB.Description; addtoList($chkUSB); break }
+                '<=' { Write-Host "Missing: " $chkUSB.Description; incident $chkUSB $eventType; break }
             }
         }
 
@@ -61,6 +93,8 @@ Remove-Event -SourceIdentifier deviceChange
 } while (1-eq1) #Loop until next event
 Unregister-Event -SourceIdentifier deviceChange
 
-$chkUSB = ""
-$whiteList = ""
-$scanUSB = ""
+#$chkUSB = ""
+#$whiteList = ""
+#$scanUSB = ""
+$prompt1 = ""
+$prompt2 = ""
