@@ -2,28 +2,38 @@ $n = $false
 #
 ####> Function Alley
 #
+##> Discover what USB Devices is present on the system
+#
 function ListUSB () {
 # Scan for anything identified as a USB Device
     gwmi Win32_USBControllerDevice | %{ [wmi]($_.Dependent) } | Where-Object { $_.DeviceID -Like "*USB*" } | Select-Object -Property DeviceID, Service, Description | ForEach-Object -Process { $_.DeviceID = $_.DeviceID -replace '\&','' | % { $_.Split('\\',3)[2] }; $_ }
 }
-
+#
+##> Create list of currently installed USB Devices into the whitelist
+#
 function createList () {
     if(Test-Path test.csv) { Remove-Item test.csv }
     (ListUSB).GetEnumerator() | Export-Csv test.csv -NoClobber -NoTypeInformation
 }
-
+#
+##> Prompt user
+#
 function yesanswer($msg) {
     $defaultValue = 'Y'
     $prompt = Read-Host "$msg [$($defaultValue)]"
     $prompt = ($defaultValue,$prompt)[[bool]$prompt]
     return $prompt
 }
-
+#
+##> Define the primary key
+#
 function createKey($keyID) {
     if(Test-Path key.txt) { Remove-Item key.txt }
     $keyID | Out-File key.txt
 }
-
+#
+##> Add new devices to the whitelist
+#
 function addtoList($chkUSB) {
     Write-Host "DeviceID: " $chkUSB.DeviceID
     $prompt1 = yesanswer "Do you want to add it to the list?"
@@ -41,7 +51,9 @@ function addtoList($chkUSB) {
         break
     }
 }
-
+#
+##> If the primary key is removed perform CYA actions
+#
 function incident($ckID, $eID) {
     [string]$kID = gc key.txt
     [string]$cID = $ckID.DeviceID
@@ -53,13 +65,27 @@ function incident($ckID, $eID) {
         break 
     }
 }
-
-if((-not (Test-Path test.csv)) -or $n){
-    createList   
+#
+####> Main
+#
+##> Check to be sure the whitelist file exist, if not create one
+#
+if((-not (Test-Path test.csv)) -or $n) {
+    $promptCreate = yesanswer "All of the following USB Devices will be whitelisted. Do you want to proceed?"
+    ListUSB
+    if($promptCreate -eq 'Y') {
+        createList
+    } else {
+        Write-Host "Remove all of the USB Devices that you don't want to be whitelisted and re-run $scriptname again."
+        exit
+    }   
 }
-Unregister-Event -SourceIdentifier deviceChange
-Register-WmiEvent -Class win32_DeviceChangeEvent -SourceIdentifier deviceChange
-write-host (get-date -format s) " Beginning script..."
+#
+##> Check the status of the USB Ports
+#
+Unregister-Event -SourceIdentifier deviceChange -ErrorAction SilentlyContinue
+Register-WmiEvent -Class win32_DeviceChangeEvent -SourceIdentifier deviceChange -ErrorAction SilentlyContinue
+write-host (get-date -format s) "Beginning script..."
 do{
     $newEvent = Wait-Event -SourceIdentifier deviceChange
     $eventType = $newEvent.SourceEventArgs.NewEvent.EventType
@@ -92,7 +118,9 @@ do{
 Remove-Event -SourceIdentifier deviceChange
 } while (1-eq1) #Loop until next event
 Unregister-Event -SourceIdentifier deviceChange
-
+#
+####> Clear variables
+#
 #$chkUSB = ""
 #$whiteList = ""
 #$scanUSB = ""
