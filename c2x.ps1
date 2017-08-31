@@ -108,7 +108,7 @@ $usr = $env:username
 $user = ([adsi]"WinNT://$dom/$usr,user").fullname
 $datetime = Get-Date
 $to = "ravance@ngosecurity.com"
-$subject = "Metricstream Task Completed at $datetime"
+$subject = "Task Completed at $datetime"
 $body = "$usr | $user | $xmlfile | $datetime"
 #
 ####> Covert CSV to XML
