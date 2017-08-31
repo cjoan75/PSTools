@@ -45,7 +45,7 @@ Author: Rob Vance (http://www.ngosecurity.com)
 
 .SYNOPSIS
 
-Converts the CSV file exported from Keylight into XML then copies it to file share
+Converts the CSV file into XML then copies it to file share
 
 .PARAMETER csv
 
