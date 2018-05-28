@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
 
-Keylight API
+API 4.4
 version 1.0
 Author: Rob Vance (http://www.ngosecurity.com)
 
