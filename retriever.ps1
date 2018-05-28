@@ -7,7 +7,7 @@
     Author     : Rob Vance (http://www.ngosecurity.com)
 
 .DESCRIPTION
-    This script executes the various capabilities available through the Keylight API. The script
+    This script executes the various capabilities available through an API. The script
     is based on what was available in v4.4 of the guide. (Refer to the guide for details on how to 
     utilize the API for your specific needs.) 
 
@@ -94,7 +94,7 @@ function usage() {
 $helpfile = "
 
 .SYNOPSIS
-    Executes supported Keylight API v.4.4 Calls
+    Executes supported API v.4.4 Calls
 
     Script name: $scriptname
     Version    : 1.0
@@ -210,7 +210,7 @@ $helpfile = "
     PS H:\> .\$scriptname -g GetRecordAttachment -c 1 -r 12 -f 1234
 
 .PARAMETER CreateRecord
-    Create a new record within the specified component of the Keylight application.
+    Create a new record within the specified component of the application.
 
     Prerequisite: CreateRecordInput.xml
 
@@ -453,7 +453,7 @@ if(($PSVersionTable.PSVersion).Major -ge 3) {
         if(Test-Path $API_XML) {
             (Invoke-WebRequest -Uri $API_CALL -Headers $header -ContentType $contenttype -Method $Method -Body (Get-Content $API_XML) -WebSession $s).Content | Out-File $OUTFILE
         } else {
-            Write-Warning "Cannot execute $API_CALL without the $API_XML file.  Create the $API_XML according to the 'Keylight Platform API Guide v4.4' and try again."
+            Write-Warning "Cannot execute $API_CALL without the $API_XML file.  Create the $API_XML according to the 'API Guide v4.4' and try again."
         }
     } else {
         # If arguments are used, execute this call
