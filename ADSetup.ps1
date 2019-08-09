@@ -13,4 +13,4 @@ Import-Module ADDSDeployment
 $SafeModeAdministratorPasswordText = ‘P@ssw0rd2013’
 $SafeModeAdministratorPassword = ConvertTo-SecureString -AsPlainText $SafeModeAdministratorPasswordText -Force
 
-Install-ADDSForest -CreateDNSDelegation:$False -DatabasePath “c:\Windows\NTDS” -DomainMode ‘Win2012R2’ -DomainName "tst” -DomainNetbiosName “TSTAD” -ForestMode ‘Win2012R2’ -InstallDNS:$true -LogPath “C:\Windows\NTDS” -NoRebootOnCompletion:$false -Sysvolpath “C:\Windows\SYSVOL” -Force:$true -SafeModeAdministratorPassword $SafeModeAdministratorPassword
+Install-ADDSForest -CreateDNSDelegation:$False -DatabasePath “c:\Windows\NTDS” -DomainMode ‘Win2012R2’ -DomainName "tst.com” -DomainNetbiosName “TSTAD” -ForestMode ‘Win2012R2’ -InstallDNS:$true -LogPath “C:\Windows\NTDS” -NoRebootOnCompletion:$false -Sysvolpath “C:\Windows\SYSVOL” -Force:$true -SafeModeAdministratorPassword $SafeModeAdministratorPassword
