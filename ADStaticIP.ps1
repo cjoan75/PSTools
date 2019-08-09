@@ -6,7 +6,7 @@ $hostname = read-host 'W12SrvrUtil'
 $Domain = 'tst.com'
 
 $username = "Administrator"
-$password = ConvertTo-SecureString "" -AsPlainText -Force
+$password = ConvertTo-SecureString "P@ssw0rd2013" -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential -ArguementList ($username, $password) 
 
 Rename-Computer $hostname
