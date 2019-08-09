@@ -1,4 +1,18 @@
-# $PSVersionTable.PSVersion
+###############################
+# Cloned VM                   #
+###############################
+
+# When Cloning, first run sysprep
+# Open sysprep in explorer located at C:\Windows\System32\sysprep
+# Right-click and Run as Administrator
+# Leave everything to default
+# Check the box for Generalize
+# Click on Ok
+#
+
+###############################
+# Set Static IP  and Hostname #
+###############################
 
 # Setup Static IP
 New-NetIPAddress –IPAddress 10.211.55.16 -DefaultGateway 10.211.55.1 -PrefixLength 24 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
@@ -7,13 +21,20 @@ New-NetIPAddress –IPAddress 10.211.55.16 -DefaultGateway 10.211.55.1 -PrefixLe
 $hostname = "W12SrvrAD"
 Rename-Computer $hostname
 
+# Reboot
+
+###############################
+# Set local Administrator PWD #
+###############################
 # Give the local Administrator account a password
 net user Administrator P@ssw0rd2013
 net user Administrator /passwordreq:yes
 
 # Reboot
 
-# Setup AD
+###############################
+# Setup AD                    #
+###############################
 Add-WindowsFeature AD-Domain-Services
 Add-windowsfeature RSAT-ADDS
 
@@ -24,13 +45,56 @@ $SafeModeAdministratorPassword = ConvertTo-SecureString -AsPlainText $SafeModeAd
 
 Install-ADDSForest -CreateDNSDelegation:$False -DatabasePath “c:\Windows\NTDS” -DomainMode ‘Win2012R2’ -DomainName "tst.com” -DomainNetbiosName “TSTAD” -ForestMode ‘Win2012R2’ -InstallDNS:$true -LogPath “C:\Windows\NTDS” -NoRebootOnCompletion:$false -Sysvolpath “C:\Windows\SYSVOL” -Force:$true -SafeModeAdministratorPassword $SafeModeAdministratorPassword
 
-# Run DCDiag
-DCDiag /c /v /e /fix /f:c:\DCDIAG.Log
-
 # Reboot
+
+###############################
+# Run DCDiag                  #
+###############################
+DCDiag /c /v /e /fix /f:c:\DCDIAG.Log
 
 # Verify Services are running
 $svcs = "adws","dns","kdc","netlogon"
 Get-Service -name $svcs -ComputerName $env:COMPUTERNAME
 
+###############################
+# Join to tst.com Domain      #
+###############################
 
+# Clone VM
+#
+# Run sysprep
+# Open sysprep in explorer located at C:\Windows\System32\sysprep
+# Right-click and Run as Administrator
+# Leave everything to default
+# Check the box for Generalize
+# Click on Ok
+
+# Reboot
+
+# Set Local Administrator Account
+
+###############################
+# Set Static IP and Hostname  #
+###############################
+
+# Setup Static IP
+New-NetIPAddress –IPAddress 10.211.55.### -DefaultGateway 10.211.55.1 -PrefixLength 24 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
+
+# Set Computer Name
+$hostname = "<Hostname>"
+Rename-Computer $hostname
+
+# Reboot
+
+# Join Domain
+#
+# System Properties > Computer Name
+# Click on Change
+# Click on Member of Domain (Radio Button)
+# Enter 'tst.com'
+# Click Ok
+# Enter Administrator and the Password used to setup AD
+# Click Ok
+# Reboot
+
+# Finish, Repeat as required.
