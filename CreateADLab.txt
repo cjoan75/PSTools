@@ -16,11 +16,11 @@ https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
 #
 
 ###############################
-# Set Static IP  and Hostname #
+# Set Static IP and Hostname  #
 ###############################
 
 # Setup Static IP
-New-NetIPAddress –IPAddress 10.211.55.16 -DefaultGateway 10.211.55.1 -PrefixLength 24 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
+New-NetIPAddress –IPAddress 10.211.55.16 -DefaultGateway 10.211.55.1 -PrefixLength 8 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
 
 # Set Computer Name
 $hostname = "W12SrvrAD"
