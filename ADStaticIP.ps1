@@ -2,7 +2,9 @@ New-NetIPAddress –IPAddress 10.211.55.17 -DefaultGateway 10.211.55.1 -PrefixLe
 
 Set-DNSClientServerAdress –InterfaceIndex (Get-NetAdapter).InterfaceIndex –ServerAddresses 10.211.55.16
 
-$hostname = read-host 'W12SrvrUtil'
+$hostname = "W12SrvrUtil"
+#$hostname = "W12SrvrAD"
+#$hostname = "W12SrvrApp"
 $Domain = 'tst.com'
 
 $username = "Administrator"
