@@ -83,7 +83,7 @@ Get-Service -name $svcs -ComputerName $env:COMPUTERNAME
 ###############################
 
 # Setup Static IP
-New-NetIPAddress –IPAddress 10.211.55.### -DefaultGateway 10.211.55.1 -PrefixLength 24 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
+New-NetIPAddress –IPAddress 10.211.55.### -DefaultGateway 10.211.55.1 -PrefixLength 8 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
 
 # Set Computer Name
 $hostname = "<Hostname>"
