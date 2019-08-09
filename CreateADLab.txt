@@ -1,3 +1,5 @@
+Create AD Lab using Parallels
+
 # Download Windows Server 2012 R2 from Microsoft
 https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
 
@@ -13,7 +15,6 @@ https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
 # Leave everything to default
 # Check the box for Generalize
 # Click on Ok
-#
 
 ###############################
 # Set Static IP and Hostname  #
@@ -45,7 +46,7 @@ Add-windowsfeature RSAT-ADDS
 
 Import-Module ADDSDeployment
 
-$SafeModeAdministratorPasswordText = ‘P@ssw0rd2013’
+$SafeModeAdministratorPasswordText = "P@ssw0rd2013"
 $SafeModeAdministratorPassword = ConvertTo-SecureString -AsPlainText $SafeModeAdministratorPasswordText -Force
 
 Install-ADDSForest -CreateDNSDelegation:$False -DatabasePath “c:\Windows\NTDS” -DomainMode ‘Win2012R2’ -DomainName "tst.com” -DomainNetbiosName “TSTAD” -ForestMode ‘Win2012R2’ -InstallDNS:$true -LogPath “C:\Windows\NTDS” -NoRebootOnCompletion:$false -Sysvolpath “C:\Windows\SYSVOL” -Force:$true -SafeModeAdministratorPassword $SafeModeAdministratorPassword
