@@ -1,3 +1,8 @@
+# Download Windows Server 2012 R2 from Microsoft
+https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
+
+# Create default VM
+
 ###############################
 # Cloned VM                   #
 ###############################
