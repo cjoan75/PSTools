@@ -138,5 +138,27 @@ sudo netplan apply
  # Disable IPv6
 echo "net.ipv6.conf.all.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 
-# Create users in AD
+# Active Directory #
+
+# Create a user i.e., tstusr in AD
 # Add tstusr into WinRMRemoteWMIUsers__ group and to the Local Administator group
+
+# Enable PowerShell Remoting #
+
+# As Administrator
+Enable-PSRemoting –force
+
+# Set start mode to automatic
+Set-Service WinRM -StartMode Automatic
+
+# Verify start mode and state - it should be running
+Get-WmiObject -Class win32_service | Where-Object {$_.name -like "WinRM"}
+
+# Trust all hosts
+Set-Item WSMan:localhost\client\trustedhosts -value *
+
+# Verify trusted hosts configuration
+Get-Item WSMan:\localhost\Client\TrustedHosts
+
+# Enabling Basic Authentication
+Set-Item WSMan:\localhost\Service\AllowUnencrypted $true 
