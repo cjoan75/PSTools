@@ -19,6 +19,8 @@ https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
 ###############################
 # Set Static IP and Hostname  #
 ###############################
+# Disable Firewall
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
 # Setup Static IP
 New-NetIPAddress –IPAddress 10.211.55.16 -DefaultGateway 10.211.55.1 -PrefixLength 8 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
@@ -104,3 +106,37 @@ Rename-Computer $hostname
 # Reboot
 
 # Finish, Repeat as required.
+
+Ubuntu Server 19.04
+# Install Parallels Tool
+https://gist.github.com/mag911/1a5583a766467d6023584d738cee0d98
+
+# Disable the Firewall
+sudo ufw disable
+sudo ufw status
+
+# Static IP
+vi /etc/netplan/##-netcfg.yaml
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: false
+      # Ser IP address & subnet mask
+      addresses: [10.10.1.5/24]
+      # Set default gateway
+      gateway4: 10.10.1.1
+      nameservers:
+        # Set DNS name servers
+        addresses: [10.10.1.1,8.8.8.8]
+      dhcp6: no
+      
+sudo netplan apply
+ 
+ # Disable IPv6
+echo "net.ipv6.conf.all.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+
+# Create users in AD
+# Add tstusr into WinRMRemoteWMIUsers__ group and to the Local Administator group
