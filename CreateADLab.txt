@@ -183,3 +183,12 @@ Set-Item WSMan:\localhost\Service\AllowUnencrypted $true
 winrm set winrm/config/client/auth @{Basic="true"}
 winrm set winrm/config/service/auth @{Basic="true"}
 winrm set winrm/config/service @{AllowUnencrypted="true"}
+
+## KDC Claims
+https://syfuhs.net/2017/07/29/active-directory-claims-and-kerberos-net/
+https://www.varonis.com/blog/kerberos-authentication-explained/
+https://docs.microsoft.com/en-us/windows-server/identity/ad-fs/operations/ad-fs-compound-authentication-and-ad-ds-claims
+
+# View
+[Security.Principal.WindowsIdentity]::GetCurrent()
+[System.Security.Principal.WindowsIdentity]::getcurrent().claims | fl type, value
