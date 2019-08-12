@@ -1,25 +1,48 @@
-Create AD Lab using Parallels
+##################################
+# Create AD Lab using Parallels  #
+##################################
+
+# https://blogs.technet.microsoft.com/pie/2017/06/30/credential-theft-made-easy-with-kerberos-delegation/
+# https://www.risual.com/2014/07/10/cannot-find-active-directory-users-and-computers-on-server-2012-and-r2/
+# https://mivilisnet.wordpress.com/2017/06/29/changing-sid-of-cloned-vms/
+# https://hackernoon.com/kerberoasting-u
+# https://docs.microsoft.com/en-us/powershell/scripting/learn/remoting/ps-remoting-second-hop?view=powershell-6
+# http://thehackerplaybook.com/Windows_Domain.htm
+# https://social.technet.microsoft.com/wiki/contents/articles/20260.how-to-join-windows-server-2012-to-a-domain.aspx
+# https://blogs.msdn.microsoft.com/canberrapfe/2012/01/01/kerberos-troubleshooting/
 
 # Download Windows Server 2012 R2 from Microsoft
 https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012-r2
 
-# Create default VM
+# Workstations
+https://developer.microsoft.com/en-us/windows/downloads/virtual-machines
+https://www.microsoft.com/en-us/software-download/windows8ISO
+https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/
 
-###############################
-# Cloned VM                   #
-###############################
+# *NIX
+https://ubuntu.com/download/server
 
-# When Cloning, first run sysprep
+# Create default VM Windows Server 2012 R2 as base
+
+##################################
+# Cloned VM                      #
+##################################
+
+# After Cloning the base W12 Server, start the cloned VM
+## Run sysprep
 # Open sysprep in explorer located at C:\Windows\System32\sysprep
 # Right-click and Run as Administrator
 # Leave everything to default
-# Check the box for Generalize
+# Be sure to check the box for Generalize
 # Click on Ok
 
-###############################
-# Set Static IP and Hostname  #
-###############################
-# Disable Firewall
+# Reboot
+
+##################################
+# ADWS | DNS | KDC | NetLogon    #
+##################################
+## Set Static IP and Hostname
+# Disable Firewall(s)
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
 # Setup Static IP
@@ -31,18 +54,16 @@ Rename-Computer $hostname
 
 # Reboot
 
-###############################
-# Set local Administrator PWD #
-###############################
+## Set local Administrator PWD
+
 # Give the local Administrator account a password
 net user Administrator P@ssw0rd2013
 net user Administrator /passwordreq:yes
 
 # Reboot
 
-###############################
-# Setup AD                    #
-###############################
+# Setup AD
+
 Add-WindowsFeature AD-Domain-Services
 Add-windowsfeature RSAT-ADDS
 
@@ -55,21 +76,18 @@ Install-ADDSForest -CreateDNSDelegation:$False -DatabasePath “c:\Windows\NTDS�
 
 # Reboot
 
-###############################
-# Run DCDiag                  #
-###############################
+## Run DCDiag
 DCDiag /c /v /e /fix /f:c:\DCDIAG.Log
 
 # Verify Services are running
 $svcs = "adws","dns","kdc","netlogon"
 Get-Service -name $svcs -ComputerName $env:COMPUTERNAME
 
-###############################
-# Join to tst.com Domain      #
-###############################
+##################################
+# Join to tst.com | TSTAD Domain #
+##################################
 
-# Clone VM
-#
+## Clone VM
 # Run sysprep
 # Open sysprep in explorer located at C:\Windows\System32\sysprep
 # Right-click and Run as Administrator
@@ -79,11 +97,7 @@ Get-Service -name $svcs -ComputerName $env:COMPUTERNAME
 
 # Reboot
 
-# Set Local Administrator Account
-
-###############################
-# Set Static IP and Hostname  #
-###############################
+## Set Static IP and Hostname
 
 # Setup Static IP
 New-NetIPAddress –IPAddress 10.211.55.### -DefaultGateway 10.211.55.1 -PrefixLength 8 -InterfaceIndex (Get-NetAdapter).InterfaceIndex
@@ -94,8 +108,8 @@ Rename-Computer $hostname
 
 # Reboot
 
-# Join Domain
-#
+## Join Domain
+
 # System Properties > Computer Name
 # Click on Change
 # Click on Member of Domain (Radio Button)
@@ -103,19 +117,20 @@ Rename-Computer $hostname
 # Click Ok
 # Enter Administrator and the Password used to setup AD
 # Click Ok
+
 # Reboot
 
-# Finish, Repeat as required.
+## Finish, Repeat as required.
 
-Ubuntu Server 19.04
-# Install Parallels Tool
+## Ubuntu Server 19.04
+## To install Parallels Tool follow the direction at:
 https://gist.github.com/mag911/1a5583a766467d6023584d738cee0d98
 
-# Disable the Firewall
+## Disable the Firewall
 sudo ufw disable
 sudo ufw status
 
-# Static IP
+## Static IP
 vi /etc/netplan/##-netcfg.yaml
 
 network:
@@ -135,15 +150,17 @@ network:
       
 sudo netplan apply
  
- # Disable IPv6
+## Disable IPv6
 echo "net.ipv6.conf.all.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 
-# Active Directory #
+##################################
+# WinRMRemoteWMIUsers__ group    #
+##################################
 
 # Create a user i.e., tstusr in AD
-# Add tstusr into WinRMRemoteWMIUsers__ group and to the Local Administator group
+# Add tstusr into WinRMRemoteWMIUsers__ group and to the Local Administator group on each Windows box
 
-# Enable PowerShell Remoting #
+## Enable PowerShell Remoting
 
 # As Administrator
 Enable-PSRemoting –force
